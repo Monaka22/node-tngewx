@@ -1,0 +1,1741 @@
+openapi: 3.0.0
+info:
+  title: SLIP-OK API
+  description: API Document
+  version: 1.0.0
+servers:
+  - url: https://api.slipok.com/api
+    description: dev
+components:
+  securitySchemes:
+    bearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Enter your bearer token in the format **Bearer &lt;token>**
+paths:
+  # Customer
+  /user/auth:
+    get:
+      tags:
+        - user
+      summary: ตรวจสอบผู้ใช้งานในระบบ
+      security:
+        - bearerAuth: []
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีผู้ใช้งาน
+                      lineName:
+                        type: string
+                        description: ชื่อไอดี
+                      uuidLine:
+                        type: string
+                        description: ไอดีไลน์
+                      status:
+                        type: integer
+                        description: status user
+                      editbrand:
+                        type: integer
+                        description: สิทธิ์การแก้ไขร้านค้า  1 =  active 0 = inactive
+                      inviteUser:
+                        type: integer
+                        description: สิทธิ์การเชิญผู้จัดการ 1 =  active 0 = inactive
+                  message:
+                    type: string
+                  brand:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        brandImage:
+                          type: string
+                          description: รูปร้าน
+                        id:
+                          type: integer
+                          description: id ร้าน
+                        brandName:
+                          type: string
+                          description: ชื่อร้าน
+  /user/admin:
+    post:
+      tags:
+        - user
+      operationId: PostLogin
+      summary: สร้างแอดมิน
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                brandId:
+                  type: integer
+                  description: เลขไอดีของร้านค้า
+              required:
+                - brandId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีผู้จัดการสาขาใหม่
+                      lineName:
+                        type: string
+                        description: ชื่อผู้จัดการสาขาใหม่
+                      uuidLine:
+                        type: string
+                        description: ไอดีไลน์
+                      updatedAt:
+                        type: integer
+                        description: updatedAt user
+                      createdAt:
+                        type: integer
+                        description: createdAt user
+                  message:
+                    type: string
+                  userBrand:
+                    type: object
+                    description: รายละเอียดการเชื่อมต่อกับร
+                  qrCodeInvite:
+                    type: string
+                    description: text ที่จะเอาไปแปลงเป็น qr code ส่งให้คนอื่นผ่าน target picker
+  /user/admins/{id}/brand/{brandId}:
+    get:
+      tags:
+        - user
+      operationId: GetViewDepartments
+      summary: ดึงข้อมูล user คนเดียวมาตอนแก้ไข
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID user
+          required: true
+          schema:
+            type: integer
+        - name: brandId
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีผู้ใช้งาน
+                      lineName:
+                        type: string
+                        description: ชื่อไอดี
+                      uuidLine:
+                        type: string
+                        description: ไอดีไลน์
+                      status:
+                        type: integer
+                        description: status user
+                      user_brands:
+                        type: object
+                        properties:
+                          editbrand:
+                            type: integer
+                            description: สิทธิ์การแก้ไขร้านค้า  1 =  active 0 = inactive
+                          inviteUser:
+                            type: integer
+                            description: สิทธิ์การเชิญผู้จัดการ 1 =  active 0 = inactive
+                  message:
+                    type: string
+                  branch:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: integer
+                          description: id ร้าน
+                        userName:
+                          type: integer
+                          description: id ร้าน
+                        branchId:
+                          type: integer
+                          description: id ร้าน
+                        status:
+                          type: integer
+                          description: สถานะการเชื่อมสาขา 1=on 0=off
+                        brandName:
+                          type: string
+                          description: ชื่อร้าน
+                        branchIcon:
+                          type: string
+                          description: ไอคอนสาขา
+  /user/admin/{id}:
+    put:
+      tags:
+        - user
+      operationId: PutUpdateDepartments
+      summary: แก้ไขข้อมูล แอดมิน
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID แอดมิน
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                lineName:
+                  type: string
+                  description: lineName
+              required:
+                - lineName
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /user/admins/{brandId}/brand:
+    get:
+      tags:
+        - user
+      operationId: PutUpdateDepartmentsbrandId
+      summary: แก้ไขข้อมูล แอดมิน
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brandId
+          in: path
+          description: ID สาขา
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        image:
+                          type: string
+                          description: รูปแอดมิน
+                        id:
+                          type: integer
+                          description: id แอดมิน
+                        lineName:
+                          type: string
+                          description: ชื่อผู้จัดการสาขาใหม่
+                        uuidLine:
+                          type: string
+                          description: ไอดีไลน์
+  /user/admin/{id}/{branchId}:
+    put:
+      tags:
+        - user
+      operationId: updateuserbranch
+      summary: แก้ไขข้อมูลสิทธ์และชื่อ แอดมินของร้านค้า
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID แอดมิน
+          required: true
+          schema:
+            type: integer
+        - name: branchId
+          in: path
+          description: ID สาขา
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  description: ชื่อที่จะใช้ในสาขา
+                status:
+                  type: integer
+                  description: status การเชื่อมกับสาขา  1 = on 0 = off
+              required:
+                - userName
+                - status
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /user/admin/{userId}:
+    delete:
+      tags:
+        - user
+      operationId: DeleteDepartments
+      summary: ลบข้อมูล แอดมิน
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: ID department
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /brand/create:
+    post:
+      tags:
+        - brand
+      operationId: Postbrand
+      summary: เอาไว้สำหรับสร้าง ร้านค้า
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /brand/{id}:
+    get:
+      tags:
+        - brand
+      operationId: getbrandid
+      summary: ดึงข้อมูล ร้านค้า ร้านเดียว
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีร้านค้า
+                      brandImage:
+                        type: string
+                        description: รูปร้านค้า
+                      brandType:
+                        type: string
+                        description: ประภทร้าน
+                      brandComment:
+                        type: string
+                        description: คอมเม้นร้าน
+                      businessType:
+                        type: string
+                        description: ประเภทธุรกิจ
+                      brandTel:
+                        type: string
+                        description: เบอร์โทรศัพท์ร้านค้า
+                      companyName:
+                        type: string
+                        description: ชื่อบริษัท
+                      companyAddress:
+                        type: string
+                        description: ที่อยู่บริษัท
+                      companyZipcode:
+                        type: string
+                        description: รหัสไปรษณีย์บริษัท
+                      companyTaxId:
+                        type: string
+                        description: เลขประจำตัวผู้เสียภาษีของบริษัท
+                      companyBranchId:
+                        type: string
+                        description: ไอดีสาขาของบริษัท
+                      emailCompany:
+                        type: string
+                        description: email ของบริษัท
+                      pagekage_brands:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: ไอดี package
+                          packageName:
+                            type: string
+                            description: ชื่อ package
+                          packageAmount:
+                            type: string
+                            description: ราคา package
+                          packagePer:
+                            type: string
+                            description: m = เดือน y = ปี
+                          quota:
+                            type: string
+                            description: โควต้าที่เหลืออยู่
+                          quotaPerM:
+                            type: string
+                            description: โควต้าของ package ทั้งหมด
+                          adminNumber:
+                            type: string
+                            description: จำนวนแอดมินที่สร้างได้ 0 คือไม่จำกัด
+                          branchNum:
+                            type: string
+                            description: จำนวนสาขาที่สร้างได้ 0 คือไม่จำกัด
+                          overQuotaAmount:
+                            type: string
+                            description: ค่าใช้จ่ายกรณีจ่ายเกิน package
+                          report:
+                            type: string
+                            description: สามารถสรุปยอดได้ 1 = ได้ 0 = ไม่ได้
+                          packageDetail:
+                            type: string
+                            description: รายละเอียด ดของ package
+                          status:
+                            type: string
+                            description: status
+                          endDate:
+                            type: string
+                            description: วันที่สิ้นสุดของ package
+                          brandId:
+                            type: string
+                            description: ไอดรร้าน
+                          overAmount:
+                            type: string
+                            description: ค่าใช้จ่ายที่เกินมา
+                          changeId:
+                            type: string
+                            description: id สำหรับเปลี่ยน ไม่ต้องแสดง
+                          packageId:
+                            type: string
+                            description: packageId
+                          createdAt:
+                            type: string
+                            description: createdAt
+                          updatedAt:
+                            type: string
+                            description: updatedAt
+  /brand/{id}/edit:
+    put:
+      tags:
+        - brand
+      operationId: updateuserbrand
+      summary: แก้ไขข้อมูล ร้านค้า
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                brandName:
+                  type: string
+                  description: รูปร้านค้า
+                brandType:
+                  type: string
+                  description: ประภทร้าน
+                brandComment:
+                  type: string
+                  description: คอมเม้นร้าน
+                businessType:
+                  type: string
+                  description: ประเภทธุรกิจ
+                brandTel:
+                  type: string
+                  description: เบอร์โทรศัพท์ร้านค้า
+                brandImage:
+                  type: string
+                  description: รูปร้านค้า
+                companyName:
+                  type: string
+                  description: ชื่อบริษัท
+                companyAddress:
+                  type: string
+                  description: ที่อยู่บริษัท
+                companyZipcode:
+                  type: string
+                  description: รหัสไปรษณีย์บริษัท
+                companyTaxId:
+                  type: string
+                  description: เลขประจำตัวผู้เสียภาษีของบริษัท
+                companyBranchId:
+                  type: string
+                  description: ไอดีสาขาของบริษัท
+                emailCompany:
+                  type: string
+                  description: email ของบริษัท
+              required:
+                - brandName
+                - brandType
+                - brandComment
+                - businessType
+                - brandTel
+                - brandImage
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /brand/transaction/report:
+    get:
+      tags:
+        - brand
+      operationId: gettransaction
+      summary: ดึงข้อมูลยอดขาย
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: endDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: brandId
+          required: true
+          schema:
+            type: string
+          description: brandId
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: 1 = bank 2= branch
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  banks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bankData:
+                          type: object
+                          properties:
+                            message:
+                              type: string
+                            data:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  description: id bank
+                                bankAccountNo:
+                                  type: integer
+                                  description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                                accountName:
+                                  type: integer
+                                  description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                                bankName:
+                                  type: integer
+                                  description: ชื่อธนาคาร
+                                brandId:
+                                  type: integer
+                                  description: id สาขา
+                                bankType:
+                                  type: integer
+                                  description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                                prompayType:
+                                  type: integer
+                                  description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โทร
+                            branch:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  bankId:
+                                    type: integer
+                                    description: id bank
+                                  branchId:
+                                    type: integer
+                                    description: id branch
+                                  status:
+                                    type: integer
+                                    description: 1 = on 2 = off
+                                  branchIcon:
+                                    type: integer
+                                    description: ไอคอนสาขา
+                                  branchName:
+                                    type: integer
+                                    description: ชื่อสาขา
+                                  groupId:
+                                    type: integer
+                                    description: groupId
+                                  summary:
+                                    type: object
+                                    properties:
+                                      amountAll:
+                                        type: integer
+                                        description: จำนวนเงินทั้งหมดของสาขานี้
+                                      dateCount:
+                                        type: integer
+                                        description: จำนวนรายการของสาขานี้
+                        bankSummary:
+                          type: object
+                          properties:
+                            amountAll:
+                              type: integer
+                              description: จำนวนเงินทั้งหมดของบัญชีนี่
+                            dateCount:
+                              type: integer
+                              description: จำนวนรายการของบัญชีนี่
+                  branch:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        branchData:
+                          type: object
+                          properties:
+                            message:
+                              type: string
+                            data:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  description: id branch
+                                status:
+                                  type: integer
+                                  description: status
+                                branchIcon:
+                                  type: integer
+                                  description: ไอคอนสาขา
+                                branchName:
+                                  type: integer
+                                  description: ชื่อสาขา
+                                groupId:
+                                  type: integer
+                                  description: groupId
+                            branch:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  bankId:
+                                    type: integer
+                                    description: id bank
+                                  branchId:
+                                    type: integer
+                                    description: id branch
+                                  status:
+                                    type: integer
+                                    description: 1 = on 2 = off
+                                  bankAccountNo:
+                                    type: integer
+                                    description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                                  accountName:
+                                    type: integer
+                                    description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                                  bankName:
+                                    type: integer
+                                    description: ชื่อธนาคาร
+                                  bankType:
+                                    type: integer
+                                    description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                                  prompayType:
+                                    type: integer
+                                    description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โทร
+                                  summary:
+                                    type: object
+                                    properties:
+                                      amountAll:
+                                        type: integer
+                                        description: จำนวนเงินทั้งหมดของสาขานี้
+                                      dateCount:
+                                        type: integer
+                                        description: จำนวนรายการของสาขานี้
+                        branchSummary:
+                          type: object
+                          properties:
+                            amountAll:
+                              type: integer
+                              description: จำนวนเงินทั้งหมดของสาขานี้
+                            dateCount:
+                              type: integer
+                              description: จำนวนรายการของสาขานี้
+                  listHistory:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: id transaction
+                        sentDate:
+                          type: integer
+                          description: เวลาส่ง
+                        branchId:
+                          type: integer
+                          description: id สาขา
+                        amount:
+                          type: integer
+                          description: จำนวนเงิน
+                        branchName:
+                          type: integer
+                          description: ชื่อสาขา
+                        branchIcon:
+                          type: integer
+                          description: ไอคอนสาขา
+                        bankId:
+                          type: integer
+                          description: id บัญชีธนาคาร
+                        bankAccountNo:
+                          type: integer
+                          description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                        accountName:
+                          type: integer
+                          description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                        bankName:
+                          type: integer
+                          description: ชื่อธนาคาร
+                        bankType:
+                          type: integer
+                          description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                        slipId:
+                          type: integer
+                          description: id slip
+                        bankAccountNoSent:
+                          type: integer
+                          description: เลขบัญชีที่รับเงิน
+                        bankAccountNameSent:
+                          type: integer
+                          description: ชือบัญชีที่รับเงิน
+                        bankAccountNoReciept:
+                          type: integer
+                          description: เลขบัญชีที่ส่ง
+                        bankAccountNameReciept:
+                          type: integer
+                          description: ชือบัญชีที่รับส่ง
+                        staffId:
+                          type: integer
+                          description: staffId
+                        lineName:
+                          type: integer
+                          description: ชื่อไลน์สต๊าฟที่ส่ง
+                  allSummary:
+                    type: integer
+                    description: จำนวนเงินทั้งหมด
+                  allCount:
+                    type: integer
+                    description: จำนวนรายการทั้งหมด
+  /brand/transaction/report/only:
+    get:
+      tags:
+        - brand
+      operationId: gettransactiononly
+      summary: ดึงข้อมูลยอดขาย
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: endDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: bankId
+          schema:
+            type: string
+          description: bankId
+        - in: query
+          name: branchId
+          schema:
+            type: string
+          description: branchId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: id transaction
+                        sentDate:
+                          type: integer
+                          description: เวลาส่ง
+                        branchId:
+                          type: integer
+                          description: id สาขา
+                        amount:
+                          type: integer
+                          description: จำนวนเงิน
+                        branchName:
+                          type: integer
+                          description: ชื่อสาขา
+                        branchIcon:
+                          type: integer
+                          description: ไอคอนสาขา
+                        bankId:
+                          type: integer
+                          description: id บัญชีธนาคาร
+                        bankAccountNo:
+                          type: integer
+                          description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                        accountName:
+                          type: integer
+                          description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                        bankName:
+                          type: integer
+                          description: ชื่อธนาคาร
+                        bankType:
+                          type: integer
+                          description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                        slipId:
+                          type: integer
+                          description: id slip
+                        bankAccountNoSent:
+                          type: integer
+                          description: เลขบัญชีที่รับเงิน
+                        bankAccountNameSent:
+                          type: integer
+                          description: ชือบัญชีที่รับเงิน
+                        bankAccountNoReciept:
+                          type: integer
+                          description: เลขบัญชีที่ส่ง
+                        bankAccountNameReciept:
+                          type: integer
+                          description: ชือบัญชีที่รับส่ง
+                        staffId:
+                          type: integer
+                          description: staffId
+                        lineName:
+                          type: integer
+                          description: ชื่อไลน์สต๊าฟที่ส่ง
+                  allSummary:
+                    type: integer
+                    description: จำนวนเงินทั้งหมด
+                  allCount:
+                    type: integer
+                    description: จำนวนรายการทั้งหมด
+  /brand/transaction/report/toexcel:
+    get:
+      tags:
+        - brand
+      operationId: gettransactiontoexcel
+      summary: ดึงข้อมูลยอดขาย
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: endDate
+          schema:
+            type: string
+          description: YYYY-MM-DD
+        - in: query
+          name: brandId
+          required: true
+          schema:
+            type: string
+          description: brandId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file:
+                    type: string
+                    description: ให้เปิดไปหน้าบราวเซอร์ตัวนี้จะเป็นลิ้งโหลด excel
+  /brand/{id}/delete:
+    delete:
+      tags:
+        - brand
+      operationId: Deletebrand
+      summary: ลบข้อมูล ร้านค้า
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /brand/{id}/renew/{packageId}:
+    put:
+      tags:
+        - brand
+      operationId: renew
+      summary: ต่อแพ็คเก็ต
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID ร้าน
+          required: true
+          schema:
+            type: integer
+        - name: packageId
+          in: path
+          description: packageId เก่า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                  message:
+                    type: string
+  /brand/{id}/change/{packageId}:
+    put:
+      tags:
+        - brand
+      operationId: change
+      summary: เปลี่ยนแพ็คเก็จ
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID ร้าน
+          required: true
+          schema:
+            type: integer
+        - name: packageId
+          in: path
+          description: packageId เก่า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                  message:
+                    type: string
+  /branch/{brandId}/all:
+    get:
+      tags:
+        - branch
+      summary: ดึงข้อมูลสาขาทั้งหมด
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brandId
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                          description: id สาขา
+                        branchName: 
+                          type: string
+                          description: ชื่อ สาขา
+                        groupId: 
+                          type: string
+                          description: groupid สาขา ถ้าว่างหรือ null แปลว่ายังไม่ได้เชื่อมกับกรุ๊ป
+                        businessType: 
+                          type: string
+                          description: ประเภทธุรกิจ
+                        brandId: 
+                          type: integer
+                          description: id ร้านค้า
+                        branchIcon: 
+                          type: string
+                          description: ไอคอนสาขา
+                        user_admin_names: 
+                          type: object
+                          properties:
+                            userId: 
+                              type: integer
+                              description: id ผู้จัดการ
+                            userName: 
+                              type: string
+                              description: id ชื่อผู้จัดการสาขา
+                            branchId: 
+                              type: integer
+                              description: id สาขา
+                            status: 
+                              type: integer
+                              description: status การเชื่อมกับสาขา  1 = on 0 = off
+                  message:
+                    type: string
+  /branch/type/get:
+    get:
+      tags:
+        - branch
+      summary: ดึงข้อมูลสาขาทั้งหมด
+      security:
+        - bearerAuth: []
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        branchType: 
+                          type: string
+                          description: branchType
+                        businessType:
+                          type: array
+                          description: businessType array
+                          items:
+                            type: string
+                            description: businessType
+                  message:
+                    type: string
+  /branch/{id}:
+    get:
+      tags:
+        - branch
+      summary: ดึงข้อมูลสาขาสาขาเดียว
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID department
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id: 
+                        type: integer
+                        description: id สาขา
+                      branchName: 
+                        type: string
+                        description: ชื่อ สาขา
+                      groupId: 
+                        type: string
+                        description: groupid สาขา ถ้าว่างหรือ null แปลว่ายังไม่ได้เชื่อมกับกรุ๊ป
+                      businessType: 
+                        type: string
+                        description: ประเภทธุรกิจ
+                      brandId: 
+                        type: integer
+                        description: id ร้านค้า
+                      branchIcon: 
+                        type: string
+                        description: ไอคอนสาขา
+                  bank: 
+                    type: object
+                    properties:
+                      bankId: 
+                        type: integer
+                        description: id ผู้จัดการ
+                      branchId: 
+                        type: string
+                        description: id ชื่อผู้จัดการสาขา
+                      bankAccountNo:
+                        type: integer
+                        description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                      accountName:
+                        type: integer
+                        description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                      bankName:
+                        type: integer
+                        description: ชื่อธนาคาร
+                      brandId:
+                        type: integer
+                        description: id สาขา
+                      bankType:
+                        type: integer
+                        description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                      prompayType:
+                        type: integer
+                        description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โท
+                      status: 
+                        type: integer
+                        description: status การเชื่อมกับสาขา  1 = on 0 = off
+                  message:
+                    type: string
+  /branch/create:
+    post:
+      tags:
+        - branch
+      operationId: Postbranch
+      summary: สร้างสาขา
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                brandId:
+                  type: integer
+                  description: เลขไอดีของร้านค้า
+                userId:
+                  type: integer
+                  description: เลขไอดีแอดมิน
+              required:
+                - brandId
+                - userId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          id: 
+                            type: integer
+                            description: id สาขา
+                          branchName: 
+                            type: string
+                            description: ชื่อ สาขา
+                          groupId: 
+                            type: string
+                            description: groupid สาขา ถ้าว่างหรือ null แปลว่ายังไม่ได้เชื่อมกับกรุ๊ป
+                          businessType: 
+                            type: string
+                            description: ประเภทธุรกิจ
+                          brandId: 
+                            type: integer
+                            description: id ร้านค้า
+                          branchIcon: 
+                            type: string
+                            description: ไอคอนสาขา
+                          user_admin_names: 
+                            type: object
+                            properties:
+                              userId: 
+                                type: integer
+                                description: id ผู้จัดการ
+                              userName: 
+                                type: string
+                                description: id ชื่อผู้จัดการสาขา
+                              branchId: 
+                                type: integer
+                                description: id สาขา
+                              status: 
+                                type: integer
+                                description: status การเชื่อมกับสาขา  1 = on 0 = off
+                  message:
+                    type: string
+                  qrCodeInvite:
+                    type: string
+                    description: text ที่จะเอาไปแปลงเป็น qr code ส่งให้กรุ๊ปผ่าน target pick
+  /branch/{id}/edit:
+    put:
+      tags:
+        - branch
+      operationId: PutUpdatebranch
+      summary: แก้ไขข้อมูล สาขา
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID สาขา
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                branchName: 
+                  type: string
+                  description: ชื่อ สาขา
+                groupId: 
+                  type: string
+                  description: groupid สาขา ถ้าว่างหรือ null แปลว่ายังไม่ได้เชื่อมกับกรุ๊ป
+                businessType: 
+                  type: string
+                  description: ประเภทธุรกิจ
+                brandId: 
+                  type: integer
+                  description: id ร้านค้า
+                branchIcon: 
+                  type: string
+                  description: ไอคอนสาขา
+              required:
+                - branchName
+                - businessType
+                - brandId
+                - branchIcon
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /branch/{branchId}/bank/{bankId}:
+    put:
+      tags:
+        - branch
+      operationId: PutUpdatebranchbank
+      summary: แก้ไขข้อมูล สาขากับบัญชีธนาคาร
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: branchId
+          in: path
+          description: ID สาขา
+          required: true
+          schema:
+            type: integer
+        - name: bankId
+          in: path
+          description: ID บัญชีธนาคาร
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  description: status 1 = on 0 = off
+              required:
+                - status
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /branch/{id}/delete:
+    delete:
+      tags:
+        - branch
+      operationId: Deletebranch
+      summary: ลบข้อมูล branch
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID branch
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /bank/{brandId}/all:
+    get:
+      tags:
+        - bank
+      summary: ดึงข้อมูลบัญชีธนาคารทั้งหมด
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brandId
+          in: path
+          description: ID ร้านค้า
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: ไอดีบัญชีธนาคารา
+                        bankAccountNo:
+                          type: integer
+                          description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                        accountName:
+                          type: integer
+                          description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                        bankName:
+                          type: integer
+                          description: ชื่อธนาคาร
+                        brandId:
+                          type: integer
+                          description: id สาขา
+                        bankType:
+                          type: integer
+                          description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                        prompayType:
+                          type: integer
+                          description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โทร
+                  message:
+                    type: string
+  /bank/{id}:
+    get:
+      tags:
+        - bank
+      summary: ดึงข้อมูลบัญชีธนาคารตามไอดี
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID บัญชีธนาคาร
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีบัญชีธนาคารา
+                      bankAccountNo:
+                        type: integer
+                        description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                      accountName:
+                        type: integer
+                        description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                      bankName:
+                        type: integer
+                        description: ชื่อธนาคาร
+                      brandId:
+                        type: integer
+                        description: id สาขา
+                      bankType:
+                        type: integer
+                        description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                      prompayType:
+                        type: integer
+                        description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โทร
+                  branch:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bankId:
+                          type: integer
+                          description: ไอดีบัญชีธนาคาร
+                        branchId:
+                          type: integer
+                          description: ไอดีสาขา
+                        status:
+                          type: integer
+                          description: การเชื่อมต่อกับสาขา 1 =on 0 = off
+                        branchName:
+                          type: string
+                          description: ชื่อสาขา
+                        branchIcon:
+                          type: string
+                          description: ไอคอนสาขา
+                        groupId:
+                          type: string
+                          description: กรุ๊ปไลน์ที่เชื่อมถ้าไม่มีแปลว่ายังไม่ได้เชื่อม
+  /bank/create:
+    post:
+      tags:
+        - bank
+      operationId: Postbank
+      summary: สร้างบัญชี
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                brandId:
+                  type: integer
+                  description: เลขไอดีของร้านค
+              required:
+                - brandId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ไอดีบัญชีธนาคารา
+                      bankAccountNo:
+                        type: integer
+                        description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                      accountName:
+                        type: integer
+                        description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                      bankName:
+                        type: integer
+                        description: ชื่อธนาคาร
+                      brandId:
+                        type: integer
+                        description: id สาขา
+                      bankType:
+                        type: integer
+                        description: ประเภทบัญชี 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                      prompayType:
+                        type: integer
+                        description: ประเทภพร้อมเพย์ 1 ปชช 2 เบอร์โทร
+                  message:
+                    type: string
+  /bank/{id}/edit:
+    put:
+      tags:
+        - bank
+      operationId: PutUpdatebank
+      summary: แก้ไขข้อมูล บัญชีธนาคาร
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID บัญชีธนาคาร
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                bankAccountNo:
+                  type: string
+                  description: เลขบัญชี เลขพร้อมเพย์ รหัสร้านค้า
+                accountName:
+                  type: string
+                  description: ชื่อบัญชี  พร้อมเพย์ หรือชื่อร้านค้า
+                bankName:
+                  type: string
+                  description: ชื่อธนาคาร
+                brandId:
+                  type: integer
+                  description: brandId
+                bankType:
+                  type: integer
+                  description: 1 บัญชีธนาคาร 2 พร้อมเพย์ 3 kplus 4 แม่มณี
+                prompayType:
+                  type: integer
+                  description: 1 ปชช 2 เบอร์โทร
+              required:
+                - bankAccountNo
+                - accountName
+                - bankName
+                - brandId
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /bank/{id}/delete:
+    delete:
+      tags:
+        - bank
+      operationId: Deletebank
+      summary: ลบข้อมูล bank
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID bank
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /file/upload:
+    post:
+      tags:
+        - file
+      operationId: upload
+      summary: เอาไว้สำหรับ upload
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: string
+                  format: binary
+                  description: ไฟล์รูป
+              required:
+                - files
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: path รูปที่จะต้องส่งให้ api ต่อไป
+                  message:
+                    type: string
+/file/url:
+    post:
+      tags:
+        - file
+      operationId: upload
+      summary: เอาไว้สำหรับ upload
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: string
+                  format: binary
+                  description: ไฟล์รูป
+              required:
+                - files
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: path รูปที่จะต้องส่งให้ api ต่อไป
+                  message:
+                    type: string
+  /healthz/:
+    get:
+      tags:
+        - Health Check
+      summary: init
+      responses:
+        "200": # status code
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
